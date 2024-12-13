@@ -2360,6 +2360,12 @@ def map_data2D_srx_new_tiled(
             fast_pos = data_stream0[fast_key]
             slow_pos = data_stream0[slow_key]
         else:
+            # Compute the number of actually existing rows in case the scan was interrupted
+            if d_xs_sum is not None:
+                slow_pts = d_xs_sum.shape[0]
+            elif d_xs2_sum is not None:
+                slow_pts = d_xs2_sum.shape[0]
+
             row_pos_fast = da.arange(fast_pts) * fast_step + fast_start
             fast_pos = da.broadcast_to(row_pos_fast, (slow_pts, fast_pts))
             if snaking_enabled:
