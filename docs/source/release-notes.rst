@@ -3,6 +3,15 @@ Release Notes
 =============
 
 
+v1.0.30 (2025-01-11)
+====================
+
+Fixed
+-----
+
+- Multiple fixes for data loading functions from Tiled at SRX, XFM and TES beamlines.
+
+
 v1.0.29 (2024-08-20)
 ====================
 
