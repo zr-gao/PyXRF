@@ -2393,6 +2393,10 @@ def map_data2D_srx_new_tiled(
     #                     NEW SRX STEP SCAN
     # ===================================================================
     if scan_doc["type"] == "XRF_STEP":
+
+        # The scan parameters are arranged differently than the parameters for the fly scan
+        fast_start, fast_stop, fast_step, slow_start, slow_stop, slow_step = scan_doc["scan_input"][:6]
+
         data_primary = hdr.primary["data"]
 
         # Define keys for motor data
@@ -2409,7 +2413,16 @@ def map_data2D_srx_new_tiled(
         num_events = len(fast_pos)
         n_scan_fast, n_scan_slow = scan_doc["shape"]
         n_scan_fast, n_scan_slow = int(n_scan_fast), int(n_scan_slow)
-        num_rows = len(fast_pos) / n_scan_fast
+        num_rows_float = len(fast_pos) / n_scan_fast
+        num_rows = int(num_rows_float)
+        num_rows = num_rows if abs(num_rows_float - num_rows) < 1e-9 else num_rows + 1
+        n_missing_pts = num_rows * n_scan_fast - len(fast_pos)
+
+        if n_missing_pts:
+            _ = da.arange(fast_step, fast_step * n_missing_pts + fast_step / 2, fast_step) + fast_pos[-1]
+            fast_pos = da.concatenate((fast_pos, _))
+            slow_pos = da.concatenate((slow_pos, np.ones(n_missing_pts) * slow_pos[-1]))
+
         fast_pos = da.reshape(fast_pos, (num_rows, n_scan_fast))
         slow_pos = da.reshape(slow_pos, (num_rows, n_scan_fast))
 
@@ -2450,6 +2463,10 @@ def map_data2D_srx_new_tiled(
                 d_xs[i, :, :] = d
             del d
 
+            if n_missing_pts:
+                _ = da.zeros([d_xs.shape[0], n_missing_pts, d_xs.shape[2]], dtype=d_xs.dtype)
+                d_xs = da.concatenate((d_xs, _), axis=1)
+
             d_xs = da.reshape(d_xs, (N_xs, num_rows, n_scan_fast, N_bins))
 
             # Sum data
@@ -2465,7 +2482,12 @@ def map_data2D_srx_new_tiled(
                 sclr_names.append(s)
         if sclr_names:
             sclr_list = [data_primary[_].read() for _ in sclr_names]
-            sclr_list = [da.reshape(_, (n_scan_slow, n_scan_fast)) for _ in sclr_list]
+            for n in range(len(sclr_list)):
+                sc = sclr_list[n]
+                if n_missing_pts:
+                    sc = da.concatenate((sc, np.zeros(n_missing_pts, dtype=sc.dtype)))
+                sc = da.reshape(sc, (num_rows, n_scan_fast))
+                sclr_list[n] = sc
             sclr = da.stack(sclr_list, axis=-1)
         else:
             sclr = None
