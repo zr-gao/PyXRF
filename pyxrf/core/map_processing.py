@@ -1143,6 +1143,7 @@ def compute_selected_rois(
 # is interest. The output of this function is tested to match the
 # output of 'snip_method' to make sure the functions are equivalent.
 
+
 _default_con_val_no_bin = 3
 _default_con_val_bin = 5
 _default_iter_num_no_bin = 3
@@ -1225,6 +1226,7 @@ def snip_method_numba(
            geoscience applications", Nuclear Instruments and Methods in
            Physics Research Section B, vol. 34, 1998.
     """
+
     # clean input a bit
     if con_val is None:
         if spectral_binning is None:
@@ -1319,7 +1321,12 @@ def snip_method_numba(
         temp = (background[lo_index.astype(np.int32)] + background[hi_index.astype(np.int32)]) / 2.0
 
         bg_index = background > temp
-        background[bg_index] = temp[bg_index]
+        # The following numpy based line of code stopped working with numba v0.61.0
+        # background[bg_index] = temp[bg_index]
+        # The following code is the workaround. Seems fast enough.
+        for n in range(len(background)):
+            if bg_index[n]:
+                background[n] = temp[n]
 
     current_width = window_p
     max_current_width = np.amax(current_width)
@@ -1331,7 +1338,12 @@ def snip_method_numba(
         temp = (background[lo_index.astype(np.int32)] + background[hi_index.astype(np.int32)]) / 2.0
 
         bg_index = background > temp
-        background[bg_index] = temp[bg_index]
+        # The following numpy based line of code stopped working with numba v0.61.0
+        # background[bg_index] = temp[bg_index]
+        # The following code is the workaround. Seems fast enough.
+        for n in range(len(background)):
+            if bg_index[n]:
+                background[n] = temp[n]
 
         # decrease the width and repeat
         current_width = current_width / decrease_factor
