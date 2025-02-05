@@ -1501,7 +1501,9 @@ class LinePlotModel(Atom):
 
         # Remove all lines from the plot
         while len(self._lines_preview):
-            self._lines_preview.pop().remove()
+            _ = self._lines_preview.pop()
+            if _.axes is not None:
+                _.remove()
 
         # The list of color names
         color_names = get_color_name()
