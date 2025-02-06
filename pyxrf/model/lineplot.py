@@ -1499,9 +1499,11 @@ class LinePlotModel(Atom):
         # Completely redraw the plot each time the function is called
         self.prepare_preview_spectrum_plot()
 
-        # Remove all lines from the plot
-        while len(self._lines_preview):
-            self._lines_preview.pop().remove()
+        # Remove all lines from the plot. This is not really needed, since the axes are cleared.
+        # while len(self._lines_preview):
+        #     _ = self._lines_preview.pop()
+        #     if _.axes is not None:
+        #         _.remove()
 
         # The list of color names
         color_names = get_color_name()
