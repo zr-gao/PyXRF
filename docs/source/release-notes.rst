@@ -2,6 +2,18 @@
 Release Notes
 =============
 
+v1.0.31 (2025-02-10)
+====================
+
+Fixed
+-----
+
+- Loading incomplete step scans from Tiled (SRX beamline).
+
+- Compatibility with Numba v0.61.0.
+
+- Compatibility with Matplotlib v3.10.
+
 
 v1.0.30 (2025-01-11)
 ====================
