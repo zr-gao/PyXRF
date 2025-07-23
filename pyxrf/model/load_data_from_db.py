@@ -3425,7 +3425,6 @@ def map_data2D_xfm(
             create_each_det=create_each_det,
             scaler_list=config_data["scaler_list"],
             fly_type=fly_type,
-            hdr = hdr
         )
 
         fpath_out = fpath
@@ -3458,8 +3457,7 @@ def write_db_to_hdf(
     fname_add_version=False,
     fly_type=None,
     subscan_dims=None,
-    base_val=None,
-    hdr = None
+    base_val=None
 ):
     """
     Assume data is obained from databroker, and save the data to hdf file.
@@ -3506,7 +3504,6 @@ def write_db_to_hdf(
                 dataGrp = f.create_group(interpath + "/" + detname)
 
                 logger.info("read data from %s" % c_name)
-
                 channel_data = data[c_name]
 
                 # new veritcal shape is defined to ignore zeros points caused by stopped/aborted scans
